@@ -1,0 +1,39 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "type-check": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.1",
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "@vitejs/plugin-react": "^4.3.1",
+        "axios": "^1.18.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^1.2.0",
+        "tailwindcss": "^4.3.1",
+        "typescript": "^7.0.2",
+        "vite": "^6.3.0"
+    },
+    "dependencies": {
+        "@headlessui/react": "^2.1.1",
+        "@heroicons/react": "^2.1.4",
+        "@hookform/resolvers": "^3.9.0",
+        "@inertiajs/core": "^3.6.1",
+        "@inertiajs/react": "^2.0.0",
+        "@tanstack/react-table": "^8.19.2",
+        "chart.js": "^4.5.1",
+        "clsx": "^2.1.1",
+        "react": "^18.3.1",
+        "react-chartjs-2": "^5.3.1",
+        "react-dom": "^18.3.1",
+        "react-hook-form": "^7.52.1",
+        "tailwind-merge": "^2.4.0",
+        "ziggy-js": "^2.3.0",
+        "zod": "^3.23.8"
+    }
+}
