@@ -597,6 +597,10 @@
 </style>
 @endpush
 
+@push('styles')
+    @vite('resources/css/pages/enrollment-form.css')
+@endpush
+
 @push('topbar_back')
 <a href="{{ route('school.students.index') }}" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.35rem 0.85rem;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#475569;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.15s ease;white-space:nowrap;" onmouseover="this.style.background='#f1f5f9';this.style.color='#0f172a'" onmouseout="this.style.background='#fff';this.style.color='#475569'">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -604,22 +608,15 @@
 </a>
 @endpush
 
-@push('topbar_actions')
-<a href="{{ route('school.students.create') }}" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1.1rem;background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;font-size:0.82rem;font-weight:700;border-radius:9999px;text-decoration:none;box-shadow:0 4px 12px rgba(30,64,175,0.3);">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    New Enrollment
-</a>
-@endpush
-
 @section('content')
-<div class="portal-wrapper">
+<div class="portal-wrapper enrollment-page">
     <!-- Top Header -->
     <header class="portal-header">
         <div class="portal-brand-wrap">
             <img src="/images/bise-sukkur-logo.png" alt="BISE Sukkur" class="portal-logo-img" onerror="this.style.display='none'">
             <div class="portal-title-block">
-                <h1>STUDENT ENROLLMENT FORM</h1>
-                <p>Board of Intermediate &amp; Secondary Education, Sukkur &bull; Sindh</p>
+                <h1>Enroll a student</h1>
+                <p>Complete the candidate record for Board of Intermediate &amp; Secondary Education, Sukkur.</p>
             </div>
         </div>
 
@@ -632,26 +629,34 @@
         </div>
     </header>
 
-    <!-- Stepper Indicator -->
-    <nav class="stepper-bar" aria-label="Enrollment Steps">
-        <a href="#sec-academic" class="stepper-item active">
+    <div class="ef-progress-overview" aria-live="polite">
+        <div class="ef-progress-copy">
+            <span class="ef-progress-kicker">Enrollment progress</span>
+            <strong id="efProgressLabel">Step 1 of 4 · Academic details</strong>
+        </div>
+        <span class="ef-progress-count" id="efProgressCount">0 of 4 sections complete</span>
+    </div>
+    <div class="ef-progress-track" aria-hidden="true"><span class="ef-progress-fill" id="efProgressFill"></span></div>
+
+    <nav class="stepper-bar" aria-label="Enrollment sections">
+        <a href="#sec-academic" class="stepper-item active" data-step="1" aria-current="step">
             <span class="stepper-circle">1</span>
-            <span>Academic Details</span>
+            <span>Academic details</span>
         </a>
         <span class="stepper-arrow">&rarr;</span>
-        <a href="#sec-other-board" class="stepper-item">
+        <a href="#sec-other-board" class="stepper-item" data-step="2">
             <span class="stepper-circle">2</span>
-            <span>Transfer / Other Board</span>
+            <span>Transfer details</span>
         </a>
         <span class="stepper-arrow">&rarr;</span>
-        <a href="#sec-biodata" class="stepper-item">
+        <a href="#sec-biodata" class="stepper-item" data-step="3">
             <span class="stepper-circle">3</span>
-            <span>Bio Data &amp; Photo</span>
+            <span>Candidate details</span>
         </a>
         <span class="stepper-arrow">&rarr;</span>
-        <a href="#sec-contact" class="stepper-item">
+        <a href="#sec-contact" class="stepper-item" data-step="4">
             <span class="stepper-circle">4</span>
-            <span>Contact &amp; Address</span>
+            <span>Contact details</span>
         </a>
     </nav>
 
@@ -662,22 +667,23 @@
             <div class="alert-error" role="alert">
                 <strong>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    Please fix the following validation errors before submitting:
+                    Please review the following fields:
                 </strong>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                <ul id="errorSummary">
+                    @foreach ($errors->messages() as $field => $messages)
+                        <li><a href="#{{ $field }}" data-error-target="{{ $field }}">{{ $messages[0] }}</a></li>
                     @endforeach
                 </ul>
             </div>
         @endif
 
-        <form id="enrollmentForm" action="{{ route('school.students.store') }}" method="POST" enctype="multipart/form-data">
+        <form id="enrollmentForm" action="{{ route('school.students.store') }}" method="POST" enctype="multipart/form-data" data-lookup-url="{{ route('school.students.lookup') }}">
             @csrf
             <input type="hidden" name="save_as" id="saveAsInput" value="final">
+            <div id="efAnnouncement" class="ef-live-region" role="status" aria-live="polite" aria-atomic="true"></div>
 
             <!-- ── STEP 1: ACADEMIC INFORMATION ── -->
-            <section class="form-section" id="sec-academic">
+            <section class="form-section" id="sec-academic" data-step="1" data-title="Academic details">
                 <div class="section-header">
                     <h2 class="section-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
@@ -755,7 +761,7 @@
             </section>
 
             <!-- ── STEP 2: OTHER BOARD / TRANSFER INFORMATION ── -->
-            <section class="form-section" id="sec-other-board">
+            <section class="form-section" id="sec-other-board" data-step="2" data-title="Transfer details">
                 <div class="section-header">
                     <h2 class="section-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
@@ -766,7 +772,7 @@
 
                 <div class="grid-3col">
                     <div class="form-group">
-                        <label for="other_board">Board</label>
+                        <label for="other_board">Previous board <span class="optional-label">Optional</span></label>
                         <select id="other_board" name="other_board" onchange="toggleOtherBoard(this)">
                             <option value="">Select Board (If transferring)...</option>
                             <option value="bise_hyderabad">BISE Hyderabad</option>
@@ -779,8 +785,9 @@
                         </select>
                     </div>
 
+                    <div class="grid-3col transfer-fields" id="transferFields" hidden>
                     <div class="form-group">
-                        <label for="other_board_name">Name of Other Board</label>
+                        <label for="other_board_name">Name of other board</label>
                         <input type="text" id="other_board_name" name="other_board_name" value="{{ old('other_board_name') }}" placeholder="Enter board title">
                     </div>
 
@@ -809,10 +816,11 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </section>
 
             <!-- ── STEP 3: CANDIDATE BIO-DATA & PASSPORT PHOTO ── -->
-            <section class="form-section" id="sec-biodata" style="margin-top:0;">
+            <section class="form-section" id="sec-biodata" data-step="3" data-title="Candidate details">
                 <div class="section-header">
                     <h2 class="section-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -941,9 +949,10 @@
 
                     <!-- Date Of Birth (In Words) - Automatically Generated -->
                     <div class="form-group">
-                        <label for="dob_in_words">Date Of Birth (In Words) <span class="req">*</span></label>
+                           <label for="dob_in_words">Date of birth in words <span class="req">*</span></label>
                         <input type="text" id="dob_in_words" name="dob_in_words" value="{{ old('dob_in_words') }}"
-                               placeholder="e.g. First January Two Thousand"
+                               placeholder="Calculated from date of birth"
+                               readonly
                                class="@error('dob_in_words') is-invalid @enderror"
                                required>
                     </div>
@@ -986,7 +995,7 @@
                 </div>
             </section>
             <!-- ── STEP 4: CONTACT & RESIDENTIAL DETAILS ── -->
-            <section class="form-section" id="sec-contact">
+            <section class="form-section" id="sec-contact" data-step="4" data-title="Contact details">
                 <div class="section-header">
                     <h2 class="section-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -1035,6 +1044,7 @@
                 </a>
 
                 <div class="footer-action-right">
+                    <span class="ef-submit-note">Review the details above before final submission.</span>
                     <button type="submit" class="btn-submit-enrollment" id="btnSubmitForm">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                         <span>Submit &amp; Enroll Candidate</span>
@@ -1444,6 +1454,10 @@
         submitBtn.innerHTML = '<span>Enrolling Candidate...</span>';
     });
 </script>
+@endpush
+
+@push('scripts')
+    @vite('resources/js/pages/enrollment-form.js')
 @endpush
 
 @endsection

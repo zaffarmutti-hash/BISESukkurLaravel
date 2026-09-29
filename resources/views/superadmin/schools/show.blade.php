@@ -19,7 +19,10 @@
         </div>
 
         <div style="display: flex; gap: 10px;">
-            <a href="{{ route('superadmin.schools') }}" class="sa-header-btn">Back</a>
+            <a href="{{ route('superadmin.schools.edit', $school->id) }}" class="sa-header-btn" style="background: linear-gradient(135deg, #1B3A6B, #2d5a9e); color: #fff; border: none; padding: 8px 18px; font-weight: 700; text-decoration: none; border-radius: 8px;">
+                Edit Institution
+            </a>
+            <a href="{{ route('superadmin.schools') }}" class="sa-header-btn" style="text-decoration: none;">Back</a>
         </div>
     </div>
 

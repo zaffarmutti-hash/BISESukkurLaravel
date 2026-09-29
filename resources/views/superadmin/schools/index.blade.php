@@ -9,10 +9,16 @@
             <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0;">Schools & Institutions Directory</h1>
             <p style="font-size: 13.5px; color: #64748b; margin: 4px 0 0 0;">Manage registered secondary schools, higher secondary colleges, and access permissions across all 5 districts.</p>
         </div>
-        <a href="{{ route('superadmin.schools.create') }}" class="sa-header-btn" style="background: linear-gradient(135deg, #C8960C, #b08209); color: #ffffff; border: none; font-weight: 700; padding: 10px 20px; box-shadow: 0 4px 14px rgba(200, 150, 12, 0.3);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Register New School</span>
-        </a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ route('superadmin.schools.import') }}" class="sa-header-btn" style="border: 1px solid #cbd5e1; background: #fff; font-weight: 700; padding: 10px 18px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Bulk Import CSV</span>
+            </a>
+            <a href="{{ route('superadmin.schools.create') }}" class="sa-header-btn" style="background: linear-gradient(135deg, #C8960C, #b08209); color: #ffffff; border: none; font-weight: 700; padding: 10px 20px; box-shadow: 0 4px 14px rgba(200, 150, 12, 0.3); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Register New School</span>
+            </a>
+        </div>
     </div>
 
     <!-- Filter Bar Card -->
@@ -155,10 +161,18 @@
 
                             <!-- Actions -->
                             <td style="text-align: right;">
-                                <div style="display: inline-flex; align-items: center; gap: 8px;">
-                                    <a href="{{ route('superadmin.schools.show', $sch->id) }}" class="sa-header-btn" style="padding: 5px 10px; font-size: 12px;" title="View Details">
+                                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <a href="{{ route('superadmin.schools.show', $sch->id) }}" class="sa-header-btn" style="padding: 5px 10px; font-size: 12px; text-decoration: none;" title="View Details">
                                         View
                                     </a>
+                                    <a href="{{ route('superadmin.schools.edit', $sch->id) }}" class="sa-header-btn" style="padding: 5px 10px; font-size: 12px; border: 1px solid #cbd5e1; text-decoration: none;" title="Edit Institution">
+                                        Edit
+                                    </a>
+                                    @if($sch->adminUser)
+                                        <a href="{{ route('superadmin.users.edit', $sch->adminUser->id) }}" class="sa-header-btn" style="padding: 5px 8px; font-size: 12px; color: #1B3A6B; border: 1px solid #cbd5e1; text-decoration: none;" title="Manage Principal Account">
+                                            User
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

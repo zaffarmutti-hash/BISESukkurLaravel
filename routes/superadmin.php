@@ -8,10 +8,14 @@ use App\Http\Controllers\SuperAdmin\AnnouncementController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\EnrollmentHubController;
 use App\Http\Controllers\SuperAdmin\ExamHubController;
+use App\Http\Controllers\SuperAdmin\CoverageReportController;
 use App\Http\Controllers\SuperAdmin\ReportsAnalyticsController;
 use App\Http\Controllers\SuperAdmin\SpecialPermissionController;
 use App\Http\Controllers\SuperAdmin\SystemHealthController;
 use App\Http\Controllers\SuperAdmin\UserController;
+use App\Http\Controllers\SuperAdmin\ApprovalsController;
+use App\Http\Controllers\SuperAdmin\SecurityController;
+use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SystemSettingsController;
 use App\Http\Controllers\SuperAdmin\WindowOverrideController;
 use App\Modules\Admin\Controllers\AcademicYearController;
@@ -221,6 +225,19 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             ->middleware('permission:report.missing_examforms')
             ->name('reports.gap');
 
+        // ─── Coverage Reports (Priority-2 Anti-Miss Reports) ─────────────────
+        Route::get('/reports/coverage', [CoverageReportController::class, 'enrollmentCoverage'])
+            ->middleware('permission:report.enrollment')
+            ->name('reports.coverage');
+
+        Route::get('/reports/results', [CoverageReportController::class, 'resultCoverage'])
+            ->middleware('permission:report.enrollment')
+            ->name('reports.results');
+
+        Route::get('/reports/certificates', [CoverageReportController::class, 'certificateCoverage'])
+            ->middleware('permission:report.enrollment')
+            ->name('reports.certificates');
+
         Route::middleware('permission:examination.view')->prefix('examination')->name('examination.')->group(function () {
             Route::get('/centers', function (Request $request) {
                 $request->merge(['tab' => 'centers']);
@@ -267,6 +284,15 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             Route::post('/schools', [SchoolController::class, 'store'])
                 ->middleware('permission:school.create')
                 ->name('schools.store');
+            Route::get('/schools/import', [SchoolController::class, 'import'])
+                ->middleware('permission:school.create')
+                ->name('schools.import');
+            Route::get('/schools/import/template', [SchoolController::class, 'downloadTemplate'])
+                ->middleware('permission:school.create')
+                ->name('schools.import.template');
+            Route::post('/schools/import', [SchoolController::class, 'processImport'])
+                ->middleware('permission:school.create')
+                ->name('schools.import.process');
             Route::get('/schools/{school}', [SchoolController::class, 'show'])
                 ->name('schools.show');
             Route::get('/schools/{school}/edit', [SchoolController::class, 'edit'])
@@ -275,12 +301,16 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             Route::put('/schools/{school}', [SchoolController::class, 'update'])
                 ->middleware('permission:school.edit')
                 ->name('schools.update');
+            Route::post('/schools/{school}/toggle-active', [SchoolController::class, 'toggleActive'])
+                ->middleware('permission:school.edit')
+                ->name('schools.toggle-active');
         });
 
         Route::middleware('permission:user.view')->prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::get('/create', [UserController::class, 'create'])->middleware('permission:user.create')->name('create');
             Route::post('/', [UserController::class, 'store'])->middleware('permission:user.create')->name('store');
+            Route::get('/{user}', [UserController::class, 'show'])->name('show');
             Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:user.edit')->name('edit');
             Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:user.edit')->name('update');
             Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('permission:user.reset_password')->name('reset-password');
@@ -386,6 +416,16 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements');
             Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         });
+
+        // ─── Security Dashboard (Super Admin Only) ───────────────────────────
+        Route::get('/security', [SecurityController::class, 'index'])->name('security');
+        Route::post('/security/users/{user}/unlock', [SecurityController::class, 'unlockUser'])->name('security.unlock');
+
+        // ─── Approvals Dashboard ─────────────────────────────────────────────
+        Route::get('/approvals', [ApprovalsController::class, 'index'])->name('approvals');
+
+        // ─── Global Search (Ctrl+K Endpoint) ─────────────────────────────────
+        Route::get('/search', [SearchController::class, 'search'])->name('search');
     });
 
 Route::middleware(['auth', 'role.check:super_admin'])->prefix('admin')->group(function () {

@@ -6,7 +6,11 @@ import { resolve } from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css'],
+            input: [
+                'resources/css/app.css',
+                'resources/css/pages/enrollment-form.css',
+                'resources/js/pages/enrollment-form.js',
+            ],
             refresh: true,
         }),
         tailwindcss(),
