@@ -35,7 +35,7 @@ Route::middleware(['auth', 'role.check:super_admin', 'active.year'])
     ->group(function () {
 
         // ─── Dashboard ──────────────────────────────────────────────────────
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
 
         // ─── Academic Year Management ────────────────────────────────────────
         Route::prefix('years')->name('years.')->group(function () {

@@ -90,8 +90,11 @@ class DashboardController extends Controller
             ? Invoice::where('status', 'submitted')->where('academic_year_id', $yearId)->count()
             : 0;
 
-        return view('superadmin.dashboard', [
+        $role = auth()->user()?->getRoleNames()->first() ?? auth()->user()?->role ?? 'super_admin';
+
+        $data = [
             'activeYear'               => $year,
+            'role'                     => $role,
             // 8 stat cards
             'totalStudents'            => $totalStudents,
             'totalSchools'             => $totalSchools,
@@ -108,6 +111,20 @@ class DashboardController extends Controller
             'districtStats'            => $districtStats,
             'recentActivity'           => $recentActivity,
             'pendingApprovalsCount'    => $pendingApprovalsCount,
-        ]);
+        ];
+
+        return match ($role) {
+            'super_admin'               => view('superadmin.dashboard', $data),
+            'controller'                => view()->exists('admin.dashboard.controller') ? view('admin.dashboard.controller', $data) : view('superadmin.dashboard', $data),
+            'assistant_controller'      => view()->exists('admin.dashboard.assistant') ? view('admin.dashboard.assistant', $data) : view('superadmin.dashboard', $data),
+            'fee_manager'               => view()->exists('admin.dashboard.fee-manager') ? view('admin.dashboard.fee-manager', $data) : view('superadmin.dashboard', $data),
+            'check_and_balance_officer' => view()->exists('admin.dashboard.auditor') ? view('admin.dashboard.auditor', $data) : view('superadmin.dashboard', $data),
+            'data_entry_operator'       => view()->exists('admin.dashboard.data-entry') ? view('admin.dashboard.data-entry', $data) : view('superadmin.dashboard', $data),
+            'marksheet_printer'         => view()->exists('admin.dashboard.printer') ? view('admin.dashboard.printer', $data) : view('superadmin.dashboard', $data),
+            'result_entry_operator'     => view()->exists('admin.dashboard.result-entry') ? view('admin.dashboard.result-entry', $data) : view('superadmin.dashboard', $data),
+            'accounts_officer'          => view()->exists('admin.dashboard.accounts') ? view('admin.dashboard.accounts', $data) : view('superadmin.dashboard', $data),
+            'announcement_officer'      => view()->exists('admin.dashboard.announcements') ? view('admin.dashboard.announcements', $data) : view('superadmin.dashboard', $data),
+            default                     => view('superadmin.dashboard', $data),
+        };
     }
 }
