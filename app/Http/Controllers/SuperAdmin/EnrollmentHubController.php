@@ -55,11 +55,19 @@ class EnrollmentHubController extends Controller
             ->latest()
             ->get();
 
-        // Tab 4 Data: Allotment History
+        // Tab 4 Data: Allotment History — summary stats + recent 50
+        $totalAllotted   = Student::whereNotNull('enrollment_number')->count();
+        $pendingAllotment = Student::whereNull('enrollment_number')
+            ->whereHas('invoiceStudents.invoice', fn ($q) => $q
+                ->where('invoice_type', 'enrollment')
+                ->where('status', 'confirmed')
+                ->when($yearId, fn ($q2) => $q2->where('academic_year_id', $yearId))
+            )->count();
         $allotmentStudents = Student::with(['school.district'])
             ->whereNotNull('enrollment_number')
+            ->when($yearId, fn ($q) => $q->whereHas('academicRecords', fn ($r) => $r->where('academic_year_id', $yearId)))
             ->latest('enrollment_number_issued_at')
-            ->limit(25)
+            ->limit(50)
             ->get();
 
         // Tab 5 Data: Enrollment Reports
@@ -84,6 +92,8 @@ class EnrollmentHubController extends Controller
             'fees'               => $fees,
             'pendingInvoices'    => $pendingInvoices,
             'allotmentStudents'  => $allotmentStudents,
+            'totalAllotted'      => $totalAllotted,
+            'pendingAllotment'   => $pendingAllotment,
             'districtStats'      => $districtStats,
             'activeExceptions'   => $activeExceptions,
             'stats'              => [
