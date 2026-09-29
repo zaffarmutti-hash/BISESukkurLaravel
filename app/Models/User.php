@@ -113,6 +113,7 @@ class User extends Authenticatable
             'super_admin'   => 'superadmin.dashboard',
             'district_admin'=> 'district.dashboard',
             'school_admin'  => 'school.dashboard',
+            'assistant_controller' => 'assistant.dashboard',
             default         => 'login',
         };
     }

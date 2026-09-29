@@ -14,6 +14,7 @@ Route::get('/', function () {
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/assistant.php';
 require __DIR__ . '/superadmin.php';
 require __DIR__ . '/district.php';
 require __DIR__ . '/admin.php';

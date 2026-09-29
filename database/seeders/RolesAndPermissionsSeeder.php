@@ -38,6 +38,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $districtAdmin = Role::firstOrCreate(['name' => 'district_admin', 'guard_name' => 'web']);
         $schoolAdmin = Role::firstOrCreate(['name' => 'school_admin', 'guard_name' => 'web']);
+        $assistantController = Role::firstOrCreate(['name' => 'assistant_controller', 'guard_name' => 'web']);
 
         $superAdmin->syncPermissions(Permission::all());
 
@@ -56,6 +57,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'examslip.view', 'examslip.download', 'examslip.bulk_download',
             'report.enrollment', 'report.missing_examforms',
         ]);
+
+        $assistantController->syncPermissions(['invoice.view']);
 
         $this->command->info('Roles and permissions seeded successfully.');
     }
