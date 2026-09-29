@@ -12,9 +12,9 @@ class AuthenticatedSessionController extends Controller
 {
     public function __construct(private AuthService $authService) {}
 
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('auth/Login');
+        return view('auth.login');
     }
 
     public function store(Request $request)

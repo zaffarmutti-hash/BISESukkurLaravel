@@ -12,9 +12,9 @@ use Inertia\Response;
 
 class PasswordChangeController extends Controller
 {
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('auth/ChangePassword');
+        return view('auth.change-password');
     }
 
     public function store(Request $request)

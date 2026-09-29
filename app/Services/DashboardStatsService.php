@@ -183,12 +183,17 @@ class DashboardStatsService
 
             return [
                 'id'                 => $district->id,
+                'district_id'        => $district->id,
                 'name'               => $district->name,
+                'district_name'      => $district->name,
+                'code'               => $district->code ?? ('#'.$district->id),
+                'district_code'      => $district->code ?? ('#'.$district->id),
                 'school_count'       => $district->schools_count,
                 'student_count'      => $studentCount,
                 'verified_amount'    => $verifiedAmount,
                 'pending_invoices'   => $pendingInvoices,
                 'missing_exam_forms' => $missingExamForms,
+                'exam_gap'           => $missingExamForms,
             ];
         })->values()->all();
     }

@@ -144,39 +144,102 @@ class StudentController extends Controller
             );
         }
 
-        $students = $query->orderBy('full_name')->paginate(20)->withQueryString();
+        $students = $query->orderByDesc('id')->paginate(15)->withQueryString();
 
-        $students->through(fn ($student) => array_merge(
-            $student->toArray(),
-            ['academic_record' => $student->currentAcademicRecord]
-        ));
-
-        // Stat cards — only count final+ records
+        // Stat cards
         $statQuery = StudentAcademicRecord::query()
             ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
-            ->where('academic_year_id', $activeYear?->id)
-            ->whereIn('status', ['final', 'pending_challan', 'challan_submitted', 'enrolled']);
+            ->where('academic_year_id', $activeYear?->id);
 
+        $totalCount = (clone $statQuery)->count();
         $sscCount = (clone $statQuery)->whereIn('class_level', ['ssc_part1', 'ssc_part2'])->count();
         $hscCount = (clone $statQuery)->whereIn('class_level', ['hsc_part1', 'hsc_part2'])->count();
+        $needsChallanCount = (clone $statQuery)->where('status', 'final')->count();
+        $enrolledCount = (clone $statQuery)->where('status', 'enrolled')->count();
 
-        return Inertia::render('school/enrollment/EnrollmentIndex', [
+        return view('school.enrollment.index', [
             'students'   => $students,
             'filters'    => $request->only(['search', 'class_level', 'group', 'status']),
             'activeYear' => $activeYear,
             'stats'      => [
-                'ssc_enrollment' => $sscCount,
-                'hsc_enrollment' => $hscCount,
+                'total'         => $totalCount,
+                'ssc'           => $sscCount,
+                'hsc'           => $hscCount,
+                'needs_challan' => $needsChallanCount,
+                'enrolled'      => $enrolledCount,
             ],
+            'school'     => auth()->user()?->school,
         ]);
     }
 
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('school/enrollment/EnrollmentCreate', [
+        $schoolId = $this->schoolScopeId();
+        $activeYear = AcademicYear::current();
+
+        return view('school.enrollment_form', [
             'student'        => null,
             'academicRecord' => null,
+            'activeYear'     => $activeYear,
             'isLocked'       => false,
+        ]);
+    }
+
+    public function lookup(Request $request)
+    {
+        $enrollmentNo = $request->query('enrollment_number');
+        $cnic = $request->query('cnic');
+
+        if (!$enrollmentNo && !$cnic) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide an Enrollment Number or CNIC.'
+            ], 400);
+        }
+
+        $query = Student::query();
+        if ($enrollmentNo) {
+            $query->where('enrollment_number', trim($enrollmentNo));
+        } elseif ($cnic) {
+            $cleanCnic = preg_replace('/\D/', '', $cnic);
+            $query->where(function ($q) use ($cnic, $cleanCnic) {
+                $q->where('cnic', trim($cnic))
+                  ->orWhere('b_form', trim($cnic))
+                  ->orWhere(DB::raw("REGEXP_REPLACE(cnic, '[^0-9]', '', 'g')"), $cleanCnic)
+                  ->orWhere(DB::raw("REGEXP_REPLACE(b_form, '[^0-9]', '', 'g')"), $cleanCnic);
+            });
+        }
+
+        $student = $query->with('currentAcademicRecord')->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existing student record found with the given details.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'full_name'               => $student->full_name,
+                'father_name'             => $student->father_name,
+                'father_cnic'             => $student->father_cnic,
+                'cnic'                    => $student->cnic ?? $student->b_form,
+                'surname'                 => $student->surname,
+                'gender'                  => $student->gender,
+                'date_of_birth'           => $student->date_of_birth ? date('Y-m-d', strtotime($student->date_of_birth)) : null,
+                'religion'                => $student->religion,
+                'medium_of_instruction'   => $student->medium_of_instruction,
+                'phone'                   => $student->phone,
+                'address'                 => $student->address,
+                'postal_code'             => $student->postal_code,
+                'guardian_name'           => $student->guardian_name,
+                'guardian_cnic'           => $student->guardian_cnic,
+                'marks_of_identification' => $student->marks_of_identification,
+                'class_level'             => $student->currentAcademicRecord?->class_level,
+                'subject_group'           => $student->currentAcademicRecord?->subject_group,
+            ]
         ]);
     }
 
@@ -241,30 +304,33 @@ class StudentController extends Controller
         });
     }
 
-    public function show(Student $student): Response
+    public function show(Student $student)
     {
         $this->ensureSchoolOwns($student);
 
         $student->load(['currentAcademicRecord', 'school']);
 
-        return Inertia::render('school/enrollment/EnrollmentCreate', [
+        return view('school.enrollment_form', [
             'student'        => $student,
             'academicRecord' => $student->currentAcademicRecord,
+            'activeYear'     => AcademicYear::current(),
             'isLocked'       => $this->isRecordLocked($student),
             'viewOnly'       => true,
         ]);
     }
 
-    public function edit(Student $student): Response
+    public function edit(Student $student)
     {
         $this->ensureSchoolOwns($student);
 
         $student->load(['currentAcademicRecord']);
 
-        return Inertia::render('school/enrollment/EnrollmentCreate', [
+        return view('school.enrollment_form', [
             'student'        => $student,
             'academicRecord' => $student->currentAcademicRecord,
+            'activeYear'     => AcademicYear::current(),
             'isLocked'       => $this->isRecordLocked($student),
+            'viewOnly'       => false,
         ]);
     }
 

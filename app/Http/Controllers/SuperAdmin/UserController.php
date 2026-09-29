@@ -16,7 +16,7 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $query = User::with(['school:id,name,username', 'district:id,name'])
             ->latest();
@@ -45,7 +45,7 @@ class UserController extends Controller
             });
         }
 
-        return Inertia::render('superadmin/users/Index', [
+        return view('superadmin.users.index', [
             'users'     => $query->paginate(20)->withQueryString(),
             'filters'   => $request->only(['role', 'district_id', 'school_id', 'is_active', 'search']),
             'districts' => District::orderBy('name')->get(['id', 'name']),

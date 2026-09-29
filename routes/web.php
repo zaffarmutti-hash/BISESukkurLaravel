@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/enrollment-form', function () {
+    return view('school.enrollment_form');
+})->name('enrollment.form');
+
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route(auth()->user()->getDashboardRoute());

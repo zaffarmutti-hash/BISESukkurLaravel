@@ -16,10 +16,12 @@ class Invoice extends Model
 
     protected $fillable = [
         'school_id', 'academic_year_id', 'invoice_number', 'invoice_type',
+        'class_level', 'subject_group', 'student_type',
         'total_amount_paisas', 'late_fee_surcharge_paisas', 'fee_phase',
         'student_count', 'status',
         'submitted_at', 'bank_name', 'bank_branch', 'bank_reference',
         'payment_date', 'deposit_slip_path',
+        'challan_pdf_path', 'student_list_pdf_path',
         'approved_by', 'approved_at', 'rejection_reason',
     ];
 
@@ -78,6 +80,11 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function items(): HasMany
+    {
+        return $this->hasMany(InvoiceItem::class, 'invoice_id');
+    }
+
     public function invoiceStudents(): HasMany
     {
         return $this->hasMany(InvoiceStudent::class, 'invoice_id');
@@ -110,7 +117,7 @@ class Invoice extends Model
 
     public function scopeConfirmed($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->whereIn('status', ['confirmed', 'verified']);
     }
 
     public function scopePaidNotVerified($query)

@@ -13,13 +13,29 @@ class School extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'district_id', 'tehsil_id', 'name', 'username', 'type', 'gender',
+        'district_id', 'tehsil_id', 'name', 'username', 'semis_code', 'type', 'gender',
+        'zone', 'allowed_levels',
         'principal_name', 'address', 'phone', 'email', 'is_active',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'      => 'boolean',
+        'zone'           => 'integer',
+        'allowed_levels' => 'array',
     ];
+
+    public function getAllowedLevelsList(): array
+    {
+        if (!empty($this->allowed_levels)) {
+            return (array) $this->allowed_levels;
+        }
+
+        return match ($this->type) {
+            'college' => ['hsc_part1', 'hsc_part2'],
+            'school'  => ['ssc_part1', 'ssc_part2'],
+            default   => ['ssc_part1', 'ssc_part2', 'hsc_part1', 'hsc_part2'],
+        };
+    }
 
     protected $appends = ['code'];
 

@@ -22,24 +22,36 @@ use Inertia\Response;
  */
 class AcademicYearController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $years = AcademicYear::orderByDesc('year_start')->get();
-        $routeName = $request->route()?->getName() ?? '';
+        $activeYear = AcademicYear::current();
+        $yearId = $activeYear?->id;
 
-        if ($this->isWindowSettingsRoute($routeName)) {
-            return Inertia::render('admin/enrollment/WindowSettings', [
-                'years'      => $years,
-                'actions'    => $this->yearActions($request),
-                'overrides'  => $this->getOverridesForActiveYear(),
-                'districts'  => District::orderBy('name')->get(['id', 'name']),
-                'schools'    => School::orderBy('name')->get(['id', 'name', 'username']),
-            ]);
-        }
+        // Pre-check warning metrics for transition modal
+        $unverifiedCount = \App\Models\Invoice::pending()
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->count();
 
-        return Inertia::render('admin/years/Index', [
-            'years'   => $years,
-            'actions' => $this->yearActions($request),
+        $missingEnrollmentCount = \App\Models\Student::withoutEnrollmentNumber()
+            ->whereHas('invoiceStudents.invoice', function ($q) use ($yearId) {
+                $q->where('invoice_type', 'enrollment')
+                  ->whereIn('status', ['confirmed', 'verified'])
+                  ->when($yearId, fn ($iq) => $iq->where('academic_year_id', $yearId));
+            })
+            ->count();
+
+        $missingExamCount = \App\Models\Student::withEnrollmentNumber()
+            ->when($yearId, fn ($q) => $q->whereHas('academicRecords', fn ($aq) => $aq->where('academic_year_id', $yearId)))
+            ->when($yearId, fn ($q) => $q->whereDoesntHave('examForms', fn ($eq) => $eq->where('academic_year_id', $yearId)))
+            ->count();
+
+        return view('superadmin.academic_years.index', [
+            'activeYear'             => $activeYear,
+            'years'                  => $years,
+            'unverifiedCount'        => $unverifiedCount,
+            'missingEnrollmentCount' => $missingEnrollmentCount,
+            'missingExamCount'       => $missingExamCount,
         ]);
     }
 

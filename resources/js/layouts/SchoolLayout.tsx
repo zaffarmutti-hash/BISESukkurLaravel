@@ -143,7 +143,7 @@ export default function SchoolLayout({ children, breadcrumb }: SchoolLayoutProps
         <nav className="sl-nav">
           <SidebarLink
             href={route('school.dashboard')}
-            active={isActive('school.dashboard', true)}
+            active={isActive('school', true)}
             label="Dashboard"
             icon={DashboardIcon}
           />

@@ -18,7 +18,7 @@ class ExamFormController extends Controller
     use ResolvesSchoolScope;
 
     // SECURITY: All queries MUST scope to school_scope_id
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $schoolId = $this->schoolScopeId();
         $school = $this->scopedSchool();
@@ -101,7 +101,7 @@ class ExamFormController extends Controller
         $feesUnpaid = (clone $statsQuery)->whereIn('status', [ExamForm::STATUS_DRAFT, ExamForm::STATUS_FINAL, ExamForm::STATUS_SUBMITTED])->count();
         $gapCount = $this->gapStudentsQuery($schoolId, $activeYear?->id)->count();
 
-        return Inertia::render('school/examination/ExamFormIndex', [
+        return view('school.examination.index', [
             'examForms'  => $examForms,
             'filters'    => $request->only(['search', 'class_level', 'group', 'status', 'tab']),
             'activeYear' => $activeYear,
@@ -115,11 +115,11 @@ class ExamFormController extends Controller
                 'fees_unpaid' => $feesUnpaid,
                 'gap_count'   => $gapCount,
             ],
-            'school' => $this->schoolForFrontend($school),
+            'school' => $school,
         ]);
     }
 
-    public function create(Request $request): Response|RedirectResponse
+    public function create(Request $request)
     {
         $schoolId = $this->schoolScopeId();
         $mode = $request->get('mode', 'new');
@@ -142,9 +142,9 @@ class ExamFormController extends Controller
 
         $eligibleStudents = $this->eligibleStudentsForExamForm($schoolId, $mode);
 
-        return Inertia::render('school/examination/ExamFormSelectStudent', [
-            'mode'     => $mode,
-            'students' => $eligibleStudents,
+        return view('school.examination.select_student', [
+            'mode'       => $mode,
+            'students'   => $eligibleStudents,
             'activeYear' => AcademicYear::current(),
         ]);
     }
@@ -197,21 +197,21 @@ class ExamFormController extends Controller
             ->with('success', $message);
     }
 
-    public function show(ExamForm $examForm): Response
+    public function show(ExamForm $examForm)
     {
         $this->ensureSchoolOwnsExamForm($examForm);
 
         $examForm->load(['student.currentAcademicRecord', 'studentAcademicRecord', 'subjects', 'examCenter']);
 
-        return Inertia::render('school/examination/ExamFormCreate', [
-            'student'  => $this->studentForFrontend($examForm->student),
+        return view('school.examination.create', [
+            'student'  => $examForm->student,
             'examForm' => $examForm,
             'isLocked' => in_array($examForm->status, ['confirmed']),
             'viewOnly' => true,
         ]);
     }
 
-    public function edit(ExamForm $examForm): Response|RedirectResponse
+    public function edit(ExamForm $examForm)
     {
         $this->ensureSchoolOwnsExamForm($examForm);
 
@@ -223,8 +223,8 @@ class ExamFormController extends Controller
 
         $examForm->load(['student.currentAcademicRecord', 'studentAcademicRecord', 'subjects', 'examCenter']);
 
-        return Inertia::render('school/examination/ExamFormCreate', [
-            'student'  => $this->studentForFrontend($examForm->student),
+        return view('school.examination.create', [
+            'student'  => $examForm->student,
             'examForm' => $examForm,
             'isLocked' => false,
         ]);
@@ -274,7 +274,7 @@ class ExamFormController extends Controller
             ->with('success', 'Exam form deleted.');
     }
 
-    public function gapReport(Request $request): Response
+    public function gapReport(Request $request)
     {
         $schoolId = $this->schoolScopeId();
         $activeYear = AcademicYear::current();
@@ -289,26 +289,11 @@ class ExamFormController extends Controller
             });
         }
 
-        $students = $query->orderBy('full_name')->paginate(20)->withQueryString();
+        $students = $query->orderBy('full_name')->get();
 
-        $students->getCollection()->transform(function (Student $student) {
-            $record = $student->currentAcademicRecord;
-            $issuedAt = $student->enrollment_number_issued_at ?? $student->created_at;
-
-            return [
-                'id'                    => $student->id,
-                'full_name'             => $student->full_name,
-                'father_name'           => $student->father_name,
-                'enrollment_number'     => $student->enrollment_number,
-                'class_level'           => $record?->class_level ?? '',
-                'subject_group'         => $record?->subject_group ?? '',
-                'days_since_enrollment' => $issuedAt ? (int) $issuedAt->diffInDays(now()) : 0,
-            ];
-        });
-
-        return Inertia::render('school/examination/ExamGapReport', [
+        return view('school.examination.select_student', [
+            'mode'       => 'returning',
             'students'   => $students,
-            'stats'      => ['total' => $this->gapStudentsQuery($schoolId, $activeYear?->id)->count()],
             'activeYear' => $activeYear,
         ]);
     }
@@ -351,7 +336,7 @@ class ExamFormController extends Controller
 
     // ─── Private Helpers ──────────────────────────────────────────────────────
 
-    private function renderCreateForm(Student $student): Response|RedirectResponse
+    private function renderCreateForm(Student $student)
     {
         $this->ensureSchoolOwns($student);
         $student->load(['currentAcademicRecord']);
@@ -368,8 +353,8 @@ class ExamFormController extends Controller
                 ->with('info', 'An exam form already exists for this student.');
         }
 
-        return Inertia::render('school/examination/ExamFormCreate', [
-            'student'  => $this->studentForFrontend($student),
+        return view('school.examination.create', [
+            'student'  => $student,
             'examForm' => null,
             'isLocked' => false,
         ]);
@@ -408,8 +393,7 @@ class ExamFormController extends Controller
             ))
             ->with('currentAcademicRecord')
             ->orderBy('full_name')
-            ->get()
-            ->map(fn (Student $student) => $this->studentForFrontend($student));
+            ->get();
     }
 
     private function studentForFrontend(Student $student): array

@@ -18,6 +18,7 @@ class Student extends Model
         'gender', 'nationality', 'religion', 'medium_of_instruction', 'phone',
         'guardian_phone', 'guardian_name', 'guardian_cnic', 'address', 'postal_code',
         'remarks', 'photo_path', 'enrollment_number', 'enrollment_number_issued_at',
+        'allotment_type', 'allotment_reason', 'allotted_by',
         'is_active', 'is_expired', 'expired_at',
     ];
 
@@ -35,6 +36,11 @@ class Student extends Model
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    public function allottedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'allotted_by');
     }
 
     public function academicRecords(): HasMany

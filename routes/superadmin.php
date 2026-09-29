@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\SuperAdmin\AcademicYearTransitionController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
 use App\Http\Controllers\SuperAdmin\AnnouncementController;
@@ -39,9 +40,29 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             ->middleware('permission:enrollment.view')
             ->name('enrollment-hub');
 
-        Route::get('/invoice-verification', [ChallanApprovalController::class, 'pendingEnrollment'])
+        Route::get('/invoice-verification', [ChallanApprovalController::class, 'index'])
             ->middleware('permission:invoice.verify')
             ->name('invoice-verification');
+
+        Route::get('/invoices/verify', [ChallanApprovalController::class, 'index'])
+            ->middleware('permission:invoice.verify')
+            ->name('invoices.verify');
+
+        Route::get('/invoices/{challan}/detail', [ChallanApprovalController::class, 'getDetail'])
+            ->middleware('permission:invoice.verify')
+            ->name('invoices.detail');
+
+        Route::get('/invoices/{challan}/download-challan', [ChallanApprovalController::class, 'downloadChallan'])
+            ->middleware('permission:invoice.view')
+            ->name('invoices.download-challan');
+
+        Route::get('/invoices/{challan}/download-list', [ChallanApprovalController::class, 'downloadStudentList'])
+            ->middleware('permission:invoice.view')
+            ->name('invoices.download-list');
+
+        Route::post('/invoices/bulk-verify', [ChallanApprovalController::class, 'bulkVerify'])
+            ->middleware('permission:invoice.verify')
+            ->name('invoices.bulk-verify');
 
         Route::get('/invoice-verification/{challan}', [ChallanApprovalController::class, 'show'])
             ->middleware('permission:invoice.verify')
@@ -55,21 +76,78 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             ->middleware('permission:invoice.verify')
             ->name('invoice-verification.reject');
 
+        // ─── Allotment History & Manual Allotment ───────────────────────────
         Route::get('/allotment-history', [EnrollmentNumberController::class, 'index'])
             ->middleware('permission:allotment.history')
             ->name('allotment-history');
+
+        Route::get('/enrollment/allotment', [EnrollmentNumberController::class, 'index'])
+            ->middleware('permission:allotment.history')
+            ->name('enrollment.allotment');
+
+        Route::get('/enrollment/search-student-manual', [EnrollmentNumberController::class, 'searchStudentForManual'])
+            ->middleware('permission:allotment.history')
+            ->name('enrollment.search-student-manual');
+
+        Route::post('/enrollment/manual-allot', [EnrollmentNumberController::class, 'manualAllot'])
+            ->middleware('permission:allotment.history')
+            ->name('enrollment.manual-allot');
 
         Route::post('/allotment/run', [EnrollmentNumberController::class, 'runAllotment'])
             ->middleware('permission:allotment.history')
             ->name('allotment.run');
 
-        Route::get('/payment-transactions', [ChallanApprovalController::class, 'pendingEnrollment'])
+        Route::get('/payment-transactions', [ChallanApprovalController::class, 'transactions'])
             ->middleware('permission:invoice.view')
             ->name('payment-transactions');
+
+        Route::get('/invoices/transactions', [ChallanApprovalController::class, 'transactions'])
+            ->middleware('permission:invoice.view')
+            ->name('invoices.transactions');
+
+        Route::get('/reports/fees', [ReportController::class, 'feeCollection'])
+            ->middleware('permission:report.fee_collection')
+            ->name('reports.fees');
+
+        // Enrollment direct tab routes
+        Route::get('/enrollment', [EnrollmentHubController::class, 'index'])
+            ->middleware('permission:enrollment.view')
+            ->name('enrollment');
+
+        Route::get('/enrollment/window', function (Request $request) {
+            $request->merge(['tab' => 'window']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:enrollment.view')->name('enrollment.window');
+
+        Route::get('/enrollment/fees', function (Request $request) {
+            $request->merge(['tab' => 'fees']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:enrollment.view')->name('enrollment.fees');
+
+        Route::get('/enrollment/verify', function (Request $request) {
+            $request->merge(['tab' => 'verify']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:invoice.verify')->name('enrollment.verify');
+
+        Route::get('/enrollment/allotment', function (Request $request) {
+            $request->merge(['tab' => 'allotment']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:enrollment.view')->name('enrollment.allotment');
+
+        Route::get('/enrollment/permissions', function (Request $request) {
+            $request->merge(['tab' => 'permissions']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:settings.system_settings')->name('enrollment.permissions');
+
+        Route::get('/enrollment/reports', function (Request $request) {
+            $request->merge(['tab' => 'reports']);
+            return app(EnrollmentHubController::class)->index($request);
+        })->middleware('permission:enrollment.view')->name('enrollment.reports');
 
         Route::middleware('permission:academicyear.manage_windows')->group(function () {
             Route::get('/fee-windows', [AcademicYearController::class, 'index'])->name('fee-windows');
             Route::get('/settings/enrollment-windows', [AcademicYearController::class, 'index'])->name('settings.enrollment-windows');
+            Route::get('/settings/exam-windows', [AcademicYearController::class, 'index'])->name('settings.exam-windows');
         });
 
         Route::middleware('permission:feerate.view')->prefix('fee-rates')->name('fee-rates.')->group(function () {
@@ -91,37 +169,92 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
             ->middleware('permission:examination.view')
             ->name('examination-hub');
 
+        Route::get('/exam', [ExamHubController::class, 'index'])
+            ->middleware('permission:examination.view')
+            ->name('exam');
+
+        Route::get('/exam/window', function (Request $request) {
+            $request->merge(['tab' => 'window']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.window');
+
+        Route::get('/exam/fees', function (Request $request) {
+            $request->merge(['tab' => 'fees']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.fees');
+
+        Route::get('/exam/seats', function (Request $request) {
+            $request->merge(['tab' => 'seats']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.seats');
+
+        Route::get('/exam/centers', function (Request $request) {
+            $request->merge(['tab' => 'centers']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.centers');
+
+        Route::get('/exam/timetable', function (Request $request) {
+            $request->merge(['tab' => 'timetable']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.timetable');
+
+        Route::get('/exam/results', function (Request $request) {
+            $request->merge(['tab' => 'results']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.results');
+
+        Route::get('/exam/reports', function (Request $request) {
+            $request->merge(['tab' => 'reports']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.reports');
+
+        Route::get('/exam/certificates', function (Request $request) {
+            $request->merge(['tab' => 'certificates']);
+            return app(ExamHubController::class)->index($request);
+        })->middleware('permission:examination.view')->name('exam.certificates');
+
         Route::get('/exam-invoice-verification', [ChallanApprovalController::class, 'pendingExamination'])
             ->middleware('permission:invoice.verify')
             ->name('exam-invoice-verification');
-
-        Route::get('/settings/exam-windows', [AcademicYearController::class, 'index'])
-            ->middleware('permission:academicyear.manage_windows')
-            ->name('settings.exam-windows');
 
         Route::get('/reports/gap', [ReportController::class, 'gap'])
             ->middleware('permission:report.missing_examforms')
             ->name('reports.gap');
 
         Route::middleware('permission:examination.view')->prefix('examination')->name('examination.')->group(function () {
-            Route::get('/centers', [ExamCenterController::class, 'index'])->name('centers.index');
+            Route::get('/centers', function (Request $request) {
+                $request->merge(['tab' => 'centers']);
+                return app(ExamHubController::class)->index($request);
+            })->name('centers.index');
             Route::post('/centers', [ExamCenterController::class, 'store'])->name('centers.store');
             Route::put('/centers/{center}', [ExamCenterController::class, 'update'])->name('centers.update');
             Route::delete('/centers/{center}', [ExamCenterController::class, 'destroy'])->name('centers.destroy');
 
-            Route::get('/timetable', [ExamTimetableController::class, 'index'])->name('timetable.index');
+            Route::get('/timetable', function (Request $request) {
+                $request->merge(['tab' => 'timetable']);
+                return app(ExamHubController::class)->index($request);
+            })->name('timetable.index');
             Route::post('/timetable', [ExamTimetableController::class, 'store'])->name('timetable.store');
             Route::put('/timetable/{timetable}', [ExamTimetableController::class, 'update'])->name('timetable.update');
             Route::delete('/timetable/{timetable}', [ExamTimetableController::class, 'destroy'])->name('timetable.destroy');
 
-            Route::get('/results', [ResultEntryController::class, 'index'])->name('results.index');
+            Route::get('/results', function (Request $request) {
+                $request->merge(['tab' => 'results']);
+                return app(ExamHubController::class)->index($request);
+            })->name('results.index');
             Route::post('/results', [ResultEntryController::class, 'store'])->name('results.store');
             Route::post('/results/{result}/verify', [ResultEntryController::class, 'verify'])->name('results.verify');
 
-            Route::get('/seat-allotment', [SeatAssignmentController::class, 'index'])->name('seat-allotment.index');
+            Route::get('/seat-allotment', function (Request $request) {
+                $request->merge(['tab' => 'seats']);
+                return app(ExamHubController::class)->index($request);
+            })->name('seat-allotment.index');
             Route::post('/seat-allotment/run', [SeatAssignmentController::class, 'runAllotment'])->name('seat-allotment.run');
 
-            Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
+            Route::get('/certificates', function (Request $request) {
+                $request->merge(['tab' => 'certificates']);
+                return app(ExamHubController::class)->index($request);
+            })->name('certificates.index');
             Route::post('/certificates/generate', [CertificateController::class, 'generate'])->name('certificates.generate');
         });
 
@@ -230,6 +363,7 @@ Route::middleware(['auth', 'force.password', 'superadmin', 'active.year', 'throt
         });
 
         // ─── System and Audit ───────────────────────────────────────────────
+        Route::get('/settings', fn () => redirect()->route('superadmin.settings.system'))->name('settings');
         Route::get('/settings/system', [SystemSettingsController::class, 'showSystem'])
             ->middleware('permission:settings.system_settings')
             ->name('settings.system');

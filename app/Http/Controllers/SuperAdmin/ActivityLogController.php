@@ -4,13 +4,11 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $query = Activity::with('causer:id,name,username')
             ->latest();
@@ -41,7 +39,7 @@ class ActivityLogController extends Controller
 
         $activities = $query->paginate(25)->withQueryString();
 
-        return Inertia::render('superadmin/ActivityLog/Index', [
+        return view('superadmin.activity_log.index', [
             'activities' => $activities->through(fn (Activity $a) => [
                 'id'           => $a->id,
                 'description'  => $a->description,

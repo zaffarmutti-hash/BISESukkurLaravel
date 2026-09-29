@@ -69,7 +69,7 @@ class DashboardController extends Controller
             ],
         ];
 
-        return Inertia::render('district/Dashboard', [
+        return view('district.dashboard', [
             'district' => ['name' => $district->name],
             'total_schools' => $totalSchools,
             'active_schools' => $activeSchools,

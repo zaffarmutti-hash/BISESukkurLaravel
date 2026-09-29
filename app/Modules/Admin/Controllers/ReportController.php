@@ -11,14 +11,11 @@ use App\Models\Student;
 use App\Models\StudentAcademicRecord;
 use App\Services\DashboardStatsService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-
 class ReportController extends Controller
 {
     public function __construct(private DashboardStatsService $statsService) {}
 
-    public function enrollment(Request $request): Response
+    public function enrollment(Request $request)
     {
         $year = AcademicYear::current();
         $yearId = $year?->id;
@@ -50,7 +47,7 @@ class ReportController extends Controller
             });
         }
 
-        return Inertia::render('superadmin/reports/EnrollmentReport', [
+        return view('superadmin.reports.enrollment', [
             'records'    => $query->latest()->paginate(25)->withQueryString(),
             'districts'  => District::orderBy('name')->get(['id', 'name']),
             'schools'    => School::orderBy('name')->get(['id', 'name', 'username']),
@@ -59,7 +56,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function gap(Request $request): Response
+    public function gap(Request $request)
     {
         $year = AcademicYear::current();
         $yearId = $year?->id;
@@ -87,7 +84,7 @@ class ReportController extends Controller
             });
         }
 
-        return Inertia::render('superadmin/reports/ExamGapReport', [
+        return view('superadmin.reports.gap', [
             'records'    => $query->latest()->paginate(25)->withQueryString(),
             'districts'  => District::orderBy('name')->get(['id', 'name']),
             'schools'    => School::orderBy('name')->get(['id', 'name', 'username']),
@@ -96,12 +93,12 @@ class ReportController extends Controller
         ]);
     }
 
-    public function feeCollection(Request $request): Response
+    public function feeCollection(Request $request)
     {
         $year = AcademicYear::current();
         $yearId = $year?->id;
 
-        $query = Challan::with(['school.district'])
+        $query = Invoice::with(['school.district'])
             ->confirmed()
             ->where('academic_year_id', $yearId);
 
@@ -123,7 +120,7 @@ class ReportController extends Controller
             $query->whereDate('payment_date', '<=', $request->input('date_to'));
         }
 
-        return Inertia::render('superadmin/reports/FeeCollectionReport', [
+        return view('superadmin.reports.fees', [
             'records'    => $query->latest()->paginate(25)->withQueryString(),
             'districts'  => District::orderBy('name')->get(['id', 'name']),
             'schools'    => School::orderBy('name')->get(['id', 'name', 'username']),
@@ -132,7 +129,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function district(Request $request): Response
+    public function district(Request $request)
     {
         $year = AcademicYear::current();
         $yearId = $year?->id;
@@ -173,7 +170,7 @@ class ReportController extends Controller
                 return [
                     'id'                 => $school->id,
                     'name'               => $school->name,
-                    'code'               => $school->code,
+                    'code'               => $school->username ?? $school->code,
                     'student_count'      => $school->students_count,
                     'verified_amount'    => $verifiedAmount,
                     'pending_invoices'   => $pendingCount,
@@ -181,7 +178,7 @@ class ReportController extends Controller
                 ];
             });
 
-            return Inertia::render('superadmin/reports/DistrictDetail', [
+            return view('superadmin.districts.index', [
                 'district'   => $district,
                 'schools'    => $schools,
                 'activeYear' => $year,
@@ -192,7 +189,7 @@ class ReportController extends Controller
         // Default comparison list
         $breakdown = $this->statsService->districtBreakdown($yearId);
 
-        return Inertia::render('superadmin/reports/DistrictComparison', [
+        return view('superadmin.districts.index', [
             'districtBreakdown' => $breakdown,
             'activeYear'        => $year,
         ]);

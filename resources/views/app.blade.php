@@ -7,7 +7,7 @@
     <meta name="keywords" content="BISE Sukkur, Board of Education, SSC, HSC, Enrollment, Examination, Sindh">
     <meta name="author" content="BISE Sukkur">
 
-    <title inertia>{{ config('app.name', 'BISE Sukkur') }}</title>
+    <title>{{ $title ?? config('app.name', 'BISE Sukkur') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/images/bise-sukkur-logo.png?v={{ config('app.version', '1.0') }}">
@@ -20,12 +20,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
 
-    @routes
-    @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
-    @inertiaHead
+    @vite(['resources/css/app.css'])
 </head>
 <body class="font-sans antialiased bg-gray-50">
-    @inertia
+    @yield('content')
 </body>
 </html>

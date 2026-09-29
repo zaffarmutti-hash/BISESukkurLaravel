@@ -8,14 +8,11 @@ use App\Models\District;
 use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
-
 class AnnouncementController extends Controller
 {
-    public function index(): Response
+    public function index()
     {
-        return Inertia::render('superadmin/Announcements', [
+        return view('superadmin.announcements.index', [
             'announcements' => Announcement::with(['sender:id,name', 'district:id,name', 'school:id,name'])
                 ->latest()
                 ->paginate(20)
@@ -29,7 +26,7 @@ class AnnouncementController extends Controller
                     'sender'           => $a->sender,
                 ]),
             'districts' => District::orderBy('name')->get(['id', 'name']),
-            'schools'   => School::orderBy('name')->get(['id', 'name', 'code']),
+            'schools'   => School::orderBy('name')->get(['id', 'name', 'username']),
         ]);
     }
 

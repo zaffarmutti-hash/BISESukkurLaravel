@@ -34,6 +34,7 @@ Route::middleware(['auth', 'force.password', 'role.check:school_admin', 'school.
         // IMPORTANT: Define create/store routes BEFORE resource to prevent route conflicts
         Route::middleware('enrollment.window')->group(function () {
             Route::get('students/create', [StudentController::class, 'create'])->name('students.create');
+            Route::get('students/lookup', [StudentController::class, 'lookup'])->name('students.lookup');
             Route::post('students', [StudentController::class, 'store'])->name('students.store');
         });
 
@@ -45,7 +46,22 @@ Route::middleware(['auth', 'force.password', 'role.check:school_admin', 'school.
             Route::patch('students/{student}', [StudentController::class, 'update']);
         });
 
-        // ─── Enrollment Challans ──────────────────────────────────────────
+        // ─── Fee Invoices & Challans ───────────────────────────────────────
+        Route::get('/invoices', [EnrollmentChallanController::class, 'index'])->name('invoices');
+
+        Route::prefix('challans')->name('challan.')->group(function () {
+            Route::get('/eligible-classes', [EnrollmentChallanController::class, 'getEligibleClasses'])->name('eligible-classes');
+            Route::get('/eligible-groups', [EnrollmentChallanController::class, 'getEligibleGroups'])->name('eligible-groups');
+            Route::get('/eligible-types', [EnrollmentChallanController::class, 'getEligibleStudentTypes'])->name('eligible-types');
+            Route::get('/fee-rate', [EnrollmentChallanController::class, 'getFeeRate'])->name('fee-rate');
+            Route::get('/eligible-students', [EnrollmentChallanController::class, 'getEligibleStudents'])->name('eligible-students');
+            Route::post('/generate', [EnrollmentChallanController::class, 'generate'])->name('generate');
+            Route::get('/{challan}/detail', [EnrollmentChallanController::class, 'getInvoiceDetail'])->name('detail');
+            Route::get('/{challan}/download-pdf', [EnrollmentChallanController::class, 'downloadChallan'])->name('download-pdf');
+            Route::get('/{challan}/download-list', [EnrollmentChallanController::class, 'downloadStudentList'])->name('download-list');
+        });
+
+        // ─── Enrollment Challans (backward-compatible legacy routes) ──────────
         Route::prefix('enrollment')->name('enrollment.')->group(function () {
             Route::get('/challans', [EnrollmentChallanController::class, 'index'])->name('challans');
             Route::middleware('enrollment.window')->group(function () {

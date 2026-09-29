@@ -12,11 +12,13 @@ class InvoiceStudent extends Model
     protected $fillable = [
         'invoice_id', 'student_id', 'student_academic_record_id',
         'fee_structure_id', 'amount_paisas', 'late_fee_surcharge_paisas',
+        'is_included',
     ];
 
     protected $casts = [
         'amount_paisas'             => 'integer',
         'late_fee_surcharge_paisas' => 'integer',
+        'is_included'               => 'boolean',
     ];
 
     // Alias for backward compatibility

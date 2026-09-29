@@ -33,9 +33,9 @@ class SystemSettingsController extends Controller
         ];
     }
 
-    public function showSystem(): Response
+    public function showSystem()
     {
-        return Inertia::render('superadmin/Settings/System', [
+        return view('superadmin.settings.system', [
             'settings' => $this->getSettings(),
         ]);
     }
