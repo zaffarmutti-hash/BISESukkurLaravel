@@ -16,7 +16,7 @@
         gap: 1.25rem;
     }
     .kpi-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #eff6ff 0%, #f8faff 100%);
         border-radius: var(--radius-lg);
         padding: 1.25rem 1.5rem;
         border: 1px solid var(--border);
@@ -26,6 +26,9 @@
         gap: 1rem;
         transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
+    .kpi-card:nth-child(2) { background: linear-gradient(135deg, #fff7e8 0%, #fffdf7 100%); }
+    .kpi-card:nth-child(3) { background: linear-gradient(135deg, #effcf7 0%, #f9fdfb 100%); }
+    .kpi-card:nth-child(4) { background: linear-gradient(135deg, #f4f1ff 0%, #fbfaff 100%); }
     .kpi-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-hover);
@@ -49,7 +52,7 @@
 
     /* Action & Filter Bar */
     .bar-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #f2f8ff 0%, #fbfdff 100%);
         border-radius: var(--radius-lg);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-subtle);
@@ -99,7 +102,7 @@
         overflow-x: auto;
         border-radius: var(--radius-lg);
         border: 1px solid var(--border);
-        background: #ffffff;
+        background: linear-gradient(135deg, #f4fbf8 0%, #ffffff 100%);
         box-shadow: var(--shadow-subtle);
     }
     table.chl-table {

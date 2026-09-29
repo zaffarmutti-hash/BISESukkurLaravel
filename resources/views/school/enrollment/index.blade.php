@@ -14,7 +14,7 @@
 
     /* ── Top Action Header ── */
     .enl-header-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #eff6ff 0%, #fafaff 100%);
         border: 1px solid #e2e8f0;
         border-radius: 16px;
         padding: 1.5rem 1.75rem;
@@ -138,7 +138,7 @@
     }
 
     .enl-kpi-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #eff6ff 0%, #f9faff 100%);
         border: 1px solid #e2e8f0;
         border-radius: 14px;
         padding: 1.15rem 1.25rem;
@@ -148,6 +148,11 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
+    .enl-kpi-card:nth-child(2) { background: linear-gradient(135deg, #effcf7 0%, #f9fdfb 100%); }
+    .enl-kpi-card:nth-child(3) { background: linear-gradient(135deg, #fff6e9 0%, #fffdf7 100%); }
+    .enl-kpi-card:nth-child(4) { background: linear-gradient(135deg, #fff1f4 0%, #fffafb 100%); }
+    .enl-kpi-card:nth-child(5) { background: linear-gradient(135deg, #f2efff 0%, #fbfaff 100%); }
 
     .enl-kpi-card:hover {
         transform: translateY(-2px);
@@ -188,7 +193,7 @@
 
     /* ── Filter Card ── */
     .enl-filter-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #f3f8ff 0%, #fcfdff 100%);
         border: 1px solid #e2e8f0;
         border-radius: 14px;
         padding: 1.25rem 1.5rem;
@@ -316,7 +321,7 @@
 
     /* ── Table Container ── */
     .enl-table-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #f3fbf8 0%, #ffffff 100%);
         border: 1px solid #e2e8f0;
         border-radius: 16px;
         box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);

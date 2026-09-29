@@ -2,111 +2,57 @@
 
 @section('content')
 <style>
-    /* ── Dashboard Styles ── */
     .db-grid {
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
-    }
-
-    .db-hero-section {
-        display: grid;
-        grid-template-columns: 1fr;
         gap: 1.5rem;
     }
 
-    .db-hero-card {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-        color: #ffffff;
-        border-radius: var(--radius-xl);
-        padding: 2.25rem 2rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 14px 30px rgba(30, 58, 138, 0.25);
-    }
-
-    .db-hero-card::after {
-        content: '';
-        position: absolute;
-        right: -30px;
-        bottom: -30px;
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-
-    .db-badge-kicker {
-        display: inline-flex;
+    .db-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
         align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(8px);
-        padding: 0.35rem 0.85rem;
-        border-radius: 9999px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
     }
 
-    .db-hero-title {
-        font-size: 1.85rem;
+    .db-school-name {
+        grid-column: 1;
+        margin: 0;
+        color: var(--text-main);
+        font-size: 1.2rem;
         font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-        margin-bottom: 0.5rem;
+        line-height: 1.3;
         text-transform: uppercase;
     }
 
-    .db-hero-desc {
-        color: #dbeafe;
-        font-size: 0.95rem;
-        max-width: 600px;
-        margin-bottom: 1.5rem;
-    }
-
-    .db-phases-bar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
-
-    .db-phase-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 12px;
-        font-size: 0.82rem;
+    .db-year {
+        grid-column: 2;
+        grid-row: 1;
+        color: var(--text-muted);
+        font-size: 0.9rem;
         font-weight: 700;
-        background: rgba(15, 23, 42, 0.25);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        white-space: nowrap;
     }
 
-    .db-phase-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
-    .dot-open { background: #34d399; box-shadow: 0 0 10px #34d399; }
-    .dot-amber { background: #fbbf24; box-shadow: 0 0 10px #fbbf24; }
-    .dot-closed { background: #f87171; box-shadow: 0 0 10px #f87171; }
-
-    /* ── Metric Cards Grid ── */
     .db-stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        min-width: 0;
+    }
+
+    .db-overview {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+        align-items: start;
+        gap: 1rem;
     }
 
     .db-stat-box {
-        background: #ffffff;
+        background: linear-gradient(135deg, #f0f7ff 0%, #f8faff 100%);
         border: 1px solid var(--border);
         border-radius: var(--radius-xl);
         padding: 1.5rem;
@@ -115,6 +61,10 @@
         box-shadow: var(--shadow-card);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
+    .db-stat-box:nth-child(2) { background: linear-gradient(135deg, #effcf7 0%, #f8fdfb 100%); }
+    .db-stat-box:nth-child(3) { background: linear-gradient(135deg, #fff4f1 0%, #fffaf8 100%); }
+    .db-stat-box:nth-child(4) { background: linear-gradient(135deg, #fff8e9 0%, #fffdf6 100%); }
 
     .db-stat-box:hover {
         transform: translateY(-3px);
@@ -147,8 +97,8 @@
     }
 
     .icon-blue { background: #eff6ff; color: #2563eb; }
-    .icon-purple { background: #faf5ff; color: #9333ea; }
-    .icon-cyan { background: #ecfeff; color: #0891b2; }
+    .icon-green { background: #ecfdf5; color: #059669; }
+    .icon-teal { background: #f0fdfa; color: #0f766e; }
     .icon-amber { background: #fffbeb; color: #d97706; }
 
     .db-stat-value {
@@ -165,56 +115,214 @@
         color: var(--text-muted);
     }
 
-    @media (max-width: 1200px) {
-        .db-stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+    .db-stat-value-money {
+        font-size: 1.65rem;
+    }
+
+    .db-breakdown {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        background: linear-gradient(135deg, #f7faff 0%, #ffffff 100%);
+        box-shadow: var(--shadow-card);
+    }
+
+    .db-enrollment-chart {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        width: 100%;
+        min-width: 0;
+        padding: 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        background: linear-gradient(135deg, #f3fbf8 0%, #fbfefd 100%);
+        box-shadow: var(--shadow-card);
+    }
+
+    .db-donut-svg {
+        width: 190px;
+        height: 190px;
+        flex: 0 0 190px;
+        overflow: visible;
+    }
+
+    .db-donut-track {
+        fill: none;
+        stroke: #e5e7eb;
+        stroke-width: 24;
+    }
+
+    .db-donut-segment {
+        fill: none;
+        stroke-width: 24;
+        stroke-linecap: butt;
+    }
+
+    .db-donut-center-value {
+        fill: var(--text-main);
+        font-size: 27px;
+        font-weight: 800;
+        text-anchor: middle;
+    }
+
+    .db-donut-center-label {
+        fill: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-anchor: middle;
+    }
+
+    .db-chart-legend {
+        display: grid;
+        gap: 0.75rem;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .db-chart-title {
+        margin: 0 0 0.15rem;
+        color: var(--text-main);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .db-chart-legend-item {
+        display: grid;
+        grid-template-columns: 10px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--text-main);
+        font-size: 0.85rem;
+    }
+
+    .db-chart-swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+    }
+
+    .db-chart-count {
+        color: var(--text-muted);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .db-breakdown table {
+        width: 100%;
+        min-width: 680px;
+        border-collapse: collapse;
+        text-align: left;
+        table-layout: fixed;
+    }
+
+    .db-breakdown th:first-child,
+    .db-breakdown td:first-child {
+        width: 112px;
+    }
+
+    .db-breakdown caption {
+        padding: 1rem 1.25rem;
+        color: var(--text-main);
+        font-size: 1rem;
+        font-weight: 800;
+        text-align: left;
+    }
+
+    .db-breakdown th,
+    .db-breakdown td {
+        padding: 0.8rem 1.25rem;
+        border-top: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .db-breakdown th {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .db-breakdown td {
+        color: var(--text-main);
+        font-size: 0.88rem;
+    }
+
+    .db-breakdown tfoot td {
+        font-weight: 800;
+        background: #f8fafc;
+    }
+
+    @media (max-width: 600px) {
+        .db-overview {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .db-header {
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        }
+
+        .db-school-name {
+            font-size: 1rem;
+        }
+
+        .db-year {
+            grid-column: 2;
+            font-size: 0.8rem;
+        }
+
+        .db-stat-box {
+            padding: 1rem;
+        }
+
+        .db-stat-label {
+            font-size: 0.67rem;
+        }
+
+        .db-stat-value {
+            font-size: 1.65rem;
+        }
+
+        .db-stat-value-money {
+            font-size: 1.25rem;
+        }
+
+        .db-enrollment-chart {
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .db-donut-svg {
+            width: 140px;
+            height: 140px;
+            flex-basis: 140px;
         }
     }
 
-    @media (max-width: 768px) {
-        .db-stats-grid {
-            grid-template-columns: 1fr;
+    @media (max-width: 420px) {
+        .db-enrollment-chart {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .db-donut-svg {
+            align-self: center;
         }
     }
 </style>
 
 <div class="db-grid">
-    <!-- Top Hero -->
-    <div class="db-hero-section">
-        <div class="db-hero-card">
-            <span class="db-badge-kicker">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                BISE Sukkur School Workspace
-            </span>
-            <h1 class="db-hero-title">{{ strtoupper(auth()->user()->school->name ?? 'Government School / College') }}</h1>
-            <p class="db-hero-desc">
-                School Center Code: <strong>{{ auth()->user()->school->code ?? 'N/A' }}</strong> &bull;
-                Academic Session: <strong>{{ is_array($activeYear) ? ($activeYear['label'] ?? '2026') : ($activeYear->label ?? '2026') }}</strong>
-            </p>
+    <header class="db-header">
+        <h1 class="db-school-name">{{ strtoupper(auth()->user()->school->name ?? 'Government School / College') }}</h1>
+        <div class="db-year">{{ $activeYear['label'] ?? 'No Active Year' }}</div>
+    </header>
 
-            <div class="db-phases-bar">
-                @php
-                    $enrPhase = is_array($activeYear) ? ($activeYear['enrollment_phase']['phase'] ?? 'normal') : ($activeYear->enrollment_phase['phase'] ?? 'normal');
-                    $examPhase = is_array($activeYear) ? ($activeYear['examination_phase']['phase'] ?? 'normal') : ($activeYear->examination_phase['phase'] ?? 'normal');
-                @endphp
-                <div class="db-phase-tag">
-                    <span class="db-phase-dot {{ $enrPhase === 'normal' ? 'dot-open' : ($enrPhase === 'grace' ? 'dot-amber' : 'dot-closed') }}"></span>
-                    <span>Enrollment: {{ $enrPhase === 'normal' ? 'Open (Normal Fee)' : ($enrPhase === 'grace' ? 'Late Fee Window' : 'Closed') }}</span>
-                </div>
-
-                <div class="db-phase-tag">
-                    <span class="db-phase-dot {{ $examPhase === 'normal' ? 'dot-open' : ($examPhase === 'grace' ? 'dot-amber' : 'dot-closed') }}"></span>
-                    <span>Exam: {{ $examPhase === 'normal' ? 'Open' : ($examPhase === 'grace' ? 'Late Fee Window' : 'Closed') }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4 Stats Cards -->
+    <div class="db-overview">
     <div class="db-stats-grid">
         <div class="db-stat-box">
             <div class="db-stat-header">
-                <span class="db-stat-label">Total Candidates</span>
+                <span class="db-stat-label">Total Enrollment</span>
                 <div class="db-stat-icon-wrap icon-blue">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -222,47 +330,129 @@
                 </div>
             </div>
             <div class="db-stat-value">{{ number_format($stats['total_students'] ?? 0) }}</div>
-            <div class="db-stat-sub">Enrolled in current session</div>
+            <div class="db-stat-sub">Academic records this year</div>
         </div>
 
         <div class="db-stat-box">
             <div class="db-stat-header">
-                <span class="db-stat-label">SSC / Matric Candidates</span>
-                <div class="db-stat-icon-wrap icon-purple">
+                <span class="db-stat-label">Total Examination</span>
+                <div class="db-stat-icon-wrap icon-teal">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                 </div>
             </div>
-            <div class="db-stat-value">{{ number_format($stats['ssc_students'] ?? 0) }}</div>
-            <div class="db-stat-sub">9th & 10th Class students</div>
+            <div class="db-stat-value">{{ number_format($stats['total_examinations'] ?? 0) }}</div>
+            <div class="db-stat-sub">Exam forms this year</div>
         </div>
 
         <div class="db-stat-box">
             <div class="db-stat-header">
-                <span class="db-stat-label">HSC / Inter Candidates</span>
-                <div class="db-stat-icon-wrap icon-cyan">
+                <span class="db-stat-label">Fees Paid</span>
+                <div class="db-stat-icon-wrap icon-green">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                     </svg>
                 </div>
             </div>
-            <div class="db-stat-value">{{ number_format($stats['hsc_students'] ?? 0) }}</div>
-            <div class="db-stat-sub">11th & 12th Class students</div>
+            <div class="db-stat-value db-stat-value-money">Rs {{ number_format($stats['fees_paid'] ?? 0, 2) }}</div>
+            <div class="db-stat-sub">Confirmed and verified invoices</div>
         </div>
 
         <div class="db-stat-box">
             <div class="db-stat-header">
-                <span class="db-stat-label">Fee Challans</span>
+                <span class="db-stat-label">Fees Payable</span>
                 <div class="db-stat-icon-wrap icon-amber">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
                     </svg>
                 </div>
             </div>
-            <div class="db-stat-value">{{ number_format($stats['total_challans'] ?? 0) }}</div>
-            <div class="db-stat-sub">{{ number_format($stats['pending_enrollment_challans'] ?? 0) }} pending verification</div>
+            <div class="db-stat-value db-stat-value-money">Rs {{ number_format($stats['fees_payable'] ?? 0, 2) }}</div>
+            <div class="db-stat-sub">Outstanding invoice balance</div>
         </div>
+    </div>
+
+    @php
+        $enrollmentTotal = (int) $classBreakdown->sum('enrollment');
+        $chartColors = ['#2563eb', '#0f766e', '#d97706', '#db2777'];
+        $chartCircumference = 2 * pi() * 78;
+        $chartOffset = 0;
+    @endphp
+    <section class="db-enrollment-chart" aria-labelledby="enrollment-chart-title">
+        <svg class="db-donut-svg" viewBox="0 0 200 200" role="img" aria-label="Enrollment distribution by class">
+            <circle class="db-donut-track" cx="100" cy="100" r="78" />
+            @foreach ($classBreakdown as $index => $row)
+                @php
+                    $segmentLength = $enrollmentTotal > 0 ? ($row['enrollment'] / $enrollmentTotal) * $chartCircumference : 0;
+                    $visibleSegmentLength = max(0, $segmentLength - ($row['enrollment'] > 0 ? 3 : 0));
+                    $segmentOffset = $chartOffset;
+                    $chartOffset += $segmentLength;
+                @endphp
+                @if ($visibleSegmentLength > 0)
+                    <circle
+                        class="db-donut-segment"
+                        cx="100"
+                        cy="100"
+                        r="78"
+                        stroke="{{ $chartColors[$index % count($chartColors)] }}"
+                        stroke-dasharray="{{ $visibleSegmentLength }} {{ $chartCircumference }}"
+                        stroke-dashoffset="{{ -$segmentOffset }}"
+                        transform="rotate(-90 100 100)"
+                    >
+                        <title>{{ $row['class'] }}: {{ number_format($row['enrollment']) }}</title>
+                    </circle>
+                @endif
+            @endforeach
+            <text class="db-donut-center-value" x="100" y="97">{{ number_format($enrollmentTotal) }}</text>
+            <text class="db-donut-center-label" x="100" y="117">ENROLLED</text>
+        </svg>
+        <div class="db-chart-legend">
+            <h2 class="db-chart-title" id="enrollment-chart-title">Enrollment by Class</h2>
+            @foreach ($classBreakdown as $index => $row)
+                <div class="db-chart-legend-item">
+                    <span class="db-chart-swatch" style="background: {{ $chartColors[$index % count($chartColors)] }}" aria-hidden="true"></span>
+                    <span>{{ $row['class'] }}</span>
+                    <span class="db-chart-count">{{ number_format($row['enrollment']) }}</span>
+                </div>
+            @endforeach
+        </div>
+    </section>
+    </div>
+
+    <div class="db-breakdown">
+        <table>
+            <caption>Class-wise Summary</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Class</th>
+                    <th scope="col">Total Enrollment</th>
+                    <th scope="col">Total Examination</th>
+                    <th scope="col">Fees Paid</th>
+                    <th scope="col">Fees Payable</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($classBreakdown as $row)
+                    <tr>
+                        <td>{{ $row['class'] }}</td>
+                        <td>{{ number_format($row['enrollment']) }}</td>
+                        <td>{{ number_format($row['examinations']) }}</td>
+                        <td>Rs {{ number_format($row['fees_paid'], 2) }}</td>
+                        <td>Rs {{ number_format($row['fees_payable'], 2) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ number_format($stats['total_students'] ?? 0) }}</td>
+                    <td>{{ number_format($stats['total_examinations'] ?? 0) }}</td>
+                    <td>Rs {{ number_format($stats['fees_paid'] ?? 0, 2) }}</td>
+                    <td>Rs {{ number_format($stats['fees_payable'] ?? 0, 2) }}</td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </div>
 @endsection
