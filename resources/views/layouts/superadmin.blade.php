@@ -150,6 +150,24 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
                 <span>Activity Log</span>
             </a>
+            <a href="{{ route('superadmin.security') }}" class="sa-nav-link {{ request()->routeIs('superadmin.security*') ? 'active' : '' }}" onclick="toggleSidebar(false)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Security Dashboard</span>
+            </a>
+            @php
+                $pendingApprovalsBadge = \App\Models\Invoice::where('status', 'submitted')->count();
+            @endphp
+            <a href="{{ route('superadmin.approvals') }}" class="sa-nav-link {{ request()->routeIs('superadmin.approvals*') ? 'active' : '' }}" onclick="toggleSidebar(false)" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    <span>Pending Approvals</span>
+                </div>
+                @if($pendingApprovalsBadge > 0)
+                    <span style="background: #ef4444; color: #fff; font-size: 10px; font-weight: 800; border-radius: 9999px; padding: 2px 7px; margin-right: 8px;">
+                        {{ $pendingApprovalsBadge }}
+                    </span>
+                @endif
+            </a>
             <a href="{{ route('superadmin.announcements') }}" class="sa-nav-link {{ request()->routeIs('superadmin.announcements*') ? 'active' : '' }}" onclick="toggleSidebar(false)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span>Announcements</span>
@@ -404,15 +422,80 @@
             }
         });
 
-        // Quick In-Memory Filter for Navigation Shortcuts
+        // Debounced Global Search (300ms) with categories: Schools, Students, Invoices, Users, Certificates, Navigation
+        let searchDebounceTimer = null;
+        const defaultNavHtml = document.getElementById('saSearchResults')?.innerHTML || '';
+
         function handleSearch(q) {
             const results = document.getElementById('saSearchResults');
+            const query = q.trim();
+
+            if (query.length < 2) {
+                // Restore default navigation items and filter locally
+                results.innerHTML = defaultNavHtml;
+                const items = results.querySelectorAll('.sa-search-item');
+                const qLower = query.toLowerCase();
+                items.forEach(item => {
+                    const text = item.innerText.toLowerCase();
+                    item.style.display = (query === '' || text.includes(qLower)) ? 'flex' : 'none';
+                });
+                return;
+            }
+
+            // Filter static items immediately for instant responsiveness
             const items = results.querySelectorAll('.sa-search-item');
-            const query = q.toLowerCase().trim();
+            const qLower = query.toLowerCase();
             items.forEach(item => {
                 const text = item.innerText.toLowerCase();
-                item.style.display = text.includes(query) ? 'flex' : 'none';
+                item.style.display = text.includes(qLower) ? 'flex' : 'none';
             });
+
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                fetch(`{{ route('superadmin.search') }}?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '';
+
+                        // Helper for sections
+                        function renderSection(title, list, iconColor = '#1B3A6B') {
+                            if (!list || list.length === 0) return '';
+                            let sec = `<div class="sa-search-group-title">${title} (${list.length})</div>`;
+                            list.forEach(item => {
+                                sec += `
+                                    <a href="${item.url}" class="sa-search-item">
+                                        <div style="display:flex; flex-direction:column; gap:2px;">
+                                            <span style="font-weight:700; color:#0f172a;">${item.title}</span>
+                                            <span style="font-size:11.5px; color:#64748b;">${item.subtitle}</span>
+                                        </div>
+                                        <span class="sa-kbd" style="background:#f1f5f9; color:#475569;">${item.badge}</span>
+                                    </a>
+                                `;
+                            });
+                            return sec;
+                        }
+
+                        html += renderSection('Institutions & Colleges', data.schools);
+                        html += renderSection('Students & Candidates', data.students);
+                        html += renderSection('Bank Challans & Invoices', data.invoices);
+                        html += renderSection('Users & Administrative Staff', data.users);
+                        html += renderSection('Certificates Registry', data.certificates);
+                        html += renderSection('Portal Modules & Pages', data.navigation);
+
+                        if (!html) {
+                            html = `
+                                <div style="text-align:center; padding: 36px 20px; color:#94a3b8;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px; display:block;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <div style="font-size:14px; font-weight:700; color:#475569;">No results found for "${query}"</div>
+                                    <div style="font-size:12px; color:#94a3b8; margin-top:4px;">Try searching by SEMIS code, student name, CNIC, or invoice number.</div>
+                                </div>
+                            `;
+                        }
+
+                        results.innerHTML = html;
+                    })
+                    .catch(err => console.error('Search error:', err));
+            }, 300);
         }
 
         // Counter Animation Utility (easeOutCubic over duration ms)
