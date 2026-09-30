@@ -42,7 +42,7 @@ class ExaminationWindowOpen
             return $next($request);
         }
 
-        if ($request->expectsJson() || $request->header('X-Inertia')) {
+        if ($request->expectsJson() || ! $request->isMethodSafe()) {
             return back()->with('error', 'The board examination window is currently closed. Contact the board office if you need an extension.');
         }
 

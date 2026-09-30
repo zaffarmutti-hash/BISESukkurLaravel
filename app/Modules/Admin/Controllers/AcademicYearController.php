@@ -10,8 +10,6 @@ use App\Models\School;
 use App\Services\WindowPhaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
  * Board-level academic year management.

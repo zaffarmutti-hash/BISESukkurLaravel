@@ -8,8 +8,6 @@ use App\Models\District;
 use App\Models\School;
 use App\Models\WindowOverride;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
  * CRUD for district-level and school-level window phase overrides.
@@ -19,7 +17,7 @@ use Inertia\Response;
  */
 class WindowOverrideController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $year = AcademicYear::current();
 
@@ -30,7 +28,7 @@ class WindowOverrideController extends Controller
                 ->map(fn ($o) => $this->enrichOverride($o))
             : collect();
 
-        return Inertia::render('superadmin/Settings/WindowOverrides', [
+        return view('superadmin.settings.window_overrides', [
             'overrides'  => $overrides,
             'activeYear' => $year,
             'districts'  => District::orderBy('name')->get(['id', 'name']),
@@ -43,6 +41,14 @@ class WindowOverrideController extends Controller
         $year = AcademicYear::current();
         if (! $year) {
             return back()->with('error', 'No active academic year configured.');
+        }
+
+        if (! $request->filled('scope_id')) {
+            if ($request->input('scope_type') === 'district' && $request->filled('scope_id_district')) {
+                $request->merge(['scope_id' => $request->input('scope_id_district')]);
+            } elseif ($request->input('scope_type') === 'school' && $request->filled('scope_id_school')) {
+                $request->merge(['scope_id' => $request->input('scope_id_school')]);
+            }
         }
 
         $validated = $request->validate([

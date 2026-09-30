@@ -133,7 +133,7 @@ class BoardPolicyService
     }
 
     /**
-     * Snapshot shared with Inertia so school portals reflect live board policy.
+     * Snapshot shared with views so school portals reflect live board policy.
      * Now includes three-phase window details and late fee information.
      */
     public function policySnapshotForSchool(?int $schoolId = null): ?array

@@ -303,7 +303,7 @@ class WindowPhaseResult
     }
 
     /**
-     * Serialize for Inertia/JSON transport.
+     * Serialize for view/JSON transport.
      */
     public function toArray(): array
     {

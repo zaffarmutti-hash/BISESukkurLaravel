@@ -9,12 +9,10 @@ use App\Models\School;
 use App\Models\SchoolException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class SpecialPermissionController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $query = SchoolException::with([
             'school:id,name,username',
@@ -33,7 +31,7 @@ class SpecialPermissionController extends Controller
             $query->where('exception_type', $request->input('exception_type'));
         }
 
-        return Inertia::render('superadmin/SpecialPermissions', [
+        return view('superadmin.special_permissions', [
             'exceptions' => $query->paginate(25)->withQueryString(),
             'filters'    => $request->only(['active_only', 'exception_type']),
             'schools'    => School::orderBy('name')->get(['id', 'name', 'username']),

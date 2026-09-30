@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
  * Manages board-level system settings stored in the database.
@@ -96,9 +94,9 @@ class SystemSettingsController extends Controller
 
     // ─── Notification Settings ────────────────────────────────────────────────
 
-    public function showNotifications(): Response
+    public function showNotifications()
     {
-        return Inertia::render('superadmin/Settings/Notifications', [
+        return view('superadmin.settings.notifications', [
             'settings' => $this->getSettings(),
         ]);
     }

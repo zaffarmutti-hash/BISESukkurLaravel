@@ -10,8 +10,6 @@ use App\Models\StudentAcademicRecord;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class StudentController extends Controller
 {

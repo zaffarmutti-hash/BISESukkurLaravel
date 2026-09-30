@@ -8,48 +8,13 @@ use App\Models\Certificate;
 use App\Modules\Admin\Services\CertificateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
-
 class CertificateController extends Controller
 {
     public function __construct(private CertificateService $certificateService) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $year = AcademicYear::current();
-        $yearId = $year?->id;
-
-        $query = Certificate::with(['student.school', 'academicYear']);
-
-        if ($yearId) {
-            $query->where('academic_year_id', $yearId);
-        }
-
-        if ($request->filled('level')) {
-            $query->where('level', $request->input('level'));
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->whereHas('student', function($sq) use ($search) {
-                $sq->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('enrollment_number', 'like', "%{$search}%");
-            });
-        }
-
-        $stats = [
-            'total' => Certificate::count(),
-            'ssc'   => Certificate::where('level', 'ssc')->count(),
-            'hsc'   => Certificate::where('level', 'hsc')->count(),
-        ];
-
-        return Inertia::render('admin/examination/Certificates', [
-            'certificates' => $query->latest()->paginate(15)->withQueryString(),
-            'stats'        => $stats,
-            'activeYear'   => $year,
-            'filters'      => $request->only(['level', 'search']),
-        ]);
+        return redirect()->route('superadmin.exam.certificates');
     }
 
     public function generate(Request $request)

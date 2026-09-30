@@ -7,32 +7,11 @@ use App\Models\ExamCenter;
 use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
-
 class ExamCenterController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $query = ExamCenter::with('district');
-
-        if ($request->filled('district_id')) {
-            $query->where('district_id', $request->input('district_id'));
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
-            });
-        }
-
-        return Inertia::render('admin/examination/Centers', [
-            'centers' => $query->orderBy('name')->paginate(15)->withQueryString(),
-            'districts' => District::orderBy('name')->get(['id', 'name']),
-            'filters' => $request->only(['district_id', 'search']),
-        ]);
+        return redirect()->route('superadmin.exam.centers');
     }
 
     public function store(Request $request)

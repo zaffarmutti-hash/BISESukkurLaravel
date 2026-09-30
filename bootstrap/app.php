@@ -19,9 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // Inertia middleware — must be in the web group
+        // Trust Railway's reverse proxy and forwarded headers in production.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 

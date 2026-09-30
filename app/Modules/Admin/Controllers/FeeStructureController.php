@@ -7,8 +7,6 @@ use App\Http\Requests\Admin\FeeConfigRequest;
 use App\Models\FeeStructure;
 use App\Services\BoardPolicyService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
  * Board-level fee rates — NOT scoped to any school.
@@ -18,14 +16,12 @@ class FeeStructureController extends Controller
 {
     public function __construct(private BoardPolicyService $boardPolicy) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $activeYear = $this->boardPolicy->activeYear();
         $fees = $this->boardPolicy->allFeeStructures($activeYear?->id);
 
-        $page = 'admin/enrollment/FeeConfiguration';
-
-        return Inertia::render($page, [
+        return view('superadmin.fee_rates.index', [
             'fees'       => $fees,
             'activeYear' => $activeYear,
             'actions'    => $this->feeActions($request),

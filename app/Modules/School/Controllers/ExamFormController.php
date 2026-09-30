@@ -10,8 +10,6 @@ use App\Models\School;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class ExamFormController extends Controller
 {

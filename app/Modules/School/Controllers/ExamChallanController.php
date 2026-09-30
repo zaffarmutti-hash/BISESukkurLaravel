@@ -12,8 +12,6 @@ use App\Models\School;
 use App\Services\InvoiceNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class ExamChallanController extends Controller
 {
@@ -62,16 +60,12 @@ class ExamChallanController extends Controller
             ];
         });
 
-        return Inertia::render('school/Challan/InvoiceList', [
-            'invoices'   => $invoices,
-            'activeYear' => $activeYear,
-            'filters'    => array_merge($request->only(['status']), ['type' => 'examination']),
-        ]);
+        return redirect()->route('school.invoices', array_merge(['type' => 'examination'], $request->all()));
     }
 
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('school/Challan/InvoiceList');
+        return redirect()->route('school.invoices', ['type' => 'examination']);
     }
 
     public function store(Request $request)

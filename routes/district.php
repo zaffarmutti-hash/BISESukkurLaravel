@@ -8,8 +8,8 @@ Route::middleware(['auth', 'force.password', 'role.check:district_admin', 'activ
     ->name('district.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/schools', fn () => inertia('district/Schools'))->name('schools');
-        Route::get('/schools/{school}', fn () => inertia('district/SchoolShow'))->name('schools.show');
-        Route::get('/reports', fn () => inertia('district/Reports'))->name('reports');
-        Route::get('/announcements', fn () => inertia('district/Announcements'))->name('announcements');
+        Route::get('/schools', [DashboardController::class, 'schools'])->name('schools');
+        Route::get('/schools/{school}', [DashboardController::class, 'schoolShow'])->name('schools.show');
+        Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+        Route::get('/announcements', [DashboardController::class, 'announcements'])->name('announcements');
     });

@@ -9,8 +9,6 @@ use App\Modules\Admin\Services\YearRolloverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AcademicYearTransitionController extends Controller
 {
@@ -19,12 +17,12 @@ class AcademicYearTransitionController extends Controller
         private YearRolloverService $rolloverService
     ) {}
 
-    public function show(): Response
+    public function show()
     {
         $year = AcademicYear::current();
         $yearId = $year?->id;
 
-        return Inertia::render('superadmin/AcademicYearTransition', [
+        return view('superadmin.academic_years.transition', [
             'activeYear' => $year,
             'years'      => AcademicYear::orderByDesc('year_start')->get(),
             'preChecks'  => [
@@ -108,7 +106,7 @@ class AcademicYearTransitionController extends Controller
             ])
             ->log("Academic year transition executed: {$current?->label} -> {$next->label}");
 
-        // Return a redirect back to dashboard via Inertia
+        // Return JSON response with redirect target
         return response()->json([
             'success' => true,
             'redirect' => route('superadmin.dashboard')

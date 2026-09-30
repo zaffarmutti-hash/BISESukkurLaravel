@@ -42,7 +42,7 @@ class EnrollmentWindowOpen
             return $next($request);
         }
 
-        if ($request->expectsJson() || $request->header('X-Inertia')) {
+        if ($request->expectsJson() || ! $request->isMethodSafe()) {
             return back()->with('error', 'The board enrollment window is currently closed. Contact the board office if you need an extension.');
         }
 

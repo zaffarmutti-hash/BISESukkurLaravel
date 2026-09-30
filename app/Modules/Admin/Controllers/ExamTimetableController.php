@@ -8,40 +8,11 @@ use App\Models\ExamCenter;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
-
 class ExamTimetableController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $year = AcademicYear::current();
-        $yearId = $year?->id;
-
-        $query = ExamTimetable::with('examCenter');
-
-        if ($yearId) {
-            $query->where('academic_year_id', $yearId);
-        }
-
-        if ($request->filled('class_level')) {
-            $query->where('class_level', $request->input('class_level'));
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function($q) use ($search) {
-                $q->where('subject_name', 'like', "%{$search}%")
-                  ->orWhere('subject_code', 'like', "%{$search}%");
-            });
-        }
-
-        return Inertia::render('admin/examination/Timetable', [
-            'timetables' => $query->orderBy('exam_date')->orderBy('start_time')->get(),
-            'centers'    => ExamCenter::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']),
-            'activeYear' => $year,
-            'filters'    => $request->only(['class_level', 'search']),
-        ]);
+        return redirect()->route('superadmin.exam.timetable');
     }
 
     public function store(Request $request)

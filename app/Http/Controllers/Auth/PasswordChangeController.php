@@ -7,8 +7,6 @@ use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class PasswordChangeController extends Controller
 {

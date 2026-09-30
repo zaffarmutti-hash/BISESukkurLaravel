@@ -498,11 +498,11 @@
             <div class="sl-sidebar-footer">
                 <div class="sl-user-card">
                     <div class="sl-user-avatar">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 1)) }}
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'S', 0, 1)) }}
                     </div>
                     <div class="sl-user-meta">
-                        <div class="sl-user-name">{{ auth()->user()->name ?? 'School Admin' }}</div>
-                        <div class="sl-user-role">Code: {{ auth()->user()->school->code ?? 'BISE-SCH' }}</div>
+                        <div class="sl-user-name">{{ auth()->user()?->name ?? 'School Admin' }}</div>
+                        <div class="sl-user-role">Code: {{ auth()->user()?->school?->code ?? 'BISE-SCH' }}</div>
                     </div>
                 </div>
 
@@ -533,11 +533,11 @@
                     @stack('topbar_back')
                     <div class="sl-topbar-school-title" style="display: flex; align-items: center; gap: 0.6rem;">
                         <span style="font-weight: 800; font-size: 1rem; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.04em;">
-                            {{ strtoupper(auth()->user()->school->name ?? 'BISE SUKKUR SCHOOL PORTAL') }}
+                            {{ strtoupper(auth()->user()?->school?->name ?? 'BISE SUKKUR SCHOOL PORTAL') }}
                         </span>
-                        @if(auth()->user()->school?->code)
+                        @if(auth()->user()?->school?->code)
                             <span style="font-size: 0.72rem; font-weight: 700; background: #e0f2fe; color: #0369a1; padding: 0.15rem 0.55rem; border-radius: 6px; font-family: monospace;">
-                                {{ auth()->user()->school->code }}
+                                {{ auth()->user()?->school?->code }}
                             </span>
                         @endif
                     </div>
@@ -548,7 +548,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
-                        <span>Year: {{ is_array($activeYear) ? ($activeYear['label'] ?? '2026') : ($activeYear->label ?? '2026') }}</span>
+                        <span>Year: {{ isset($activeYear) ? (is_array($activeYear) ? ($activeYear['label'] ?? '2026') : ($activeYear->label ?? '2026')) : '2026' }}</span>
                     </div>
                     @stack('topbar_actions')
                 </div>

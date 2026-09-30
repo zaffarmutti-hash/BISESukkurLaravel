@@ -7,19 +7,17 @@ use App\Models\AcademicYear;
 use App\Models\District;
 use App\Services\DashboardStatsService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class ReportsAnalyticsController extends Controller
 {
     public function __construct(private DashboardStatsService $stats) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $years = AcademicYear::orderByDesc('year_start')->get(['id', 'label', 'is_active']);
         $yearId = $request->integer('academic_year_id') ?: AcademicYear::current()?->id;
 
-        return Inertia::render('superadmin/ReportsAnalytics', [
+        return view('superadmin.reports.analytics', [
             'years'             => $years,
             'districts'         => District::orderBy('name')->get(['id', 'name']),
             'selectedYearId'    => $yearId,
